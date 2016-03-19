@@ -17,8 +17,10 @@ public class MainActivity extends AppCompatActivity {
     Button buttonAllClear, buttonBackspace, buttonPerCent, buttonDivision, buttonMultiple, buttonMinus, buttonPlus, buttonDot, buttonEqual;
     int numberOfInput = 0;
     String input = "";
+    String inputData="";
     boolean didInputASign = false;
-    String[] signs = {"+", "-", "x", "/"};
+    String[] signs = {"+", "-", "*", "/"};
+    double result=0.0;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -177,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         buttonPerCent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getAnNewInput("%");
+                getAnNewInput("N");
             }
         });
 
@@ -198,7 +200,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getAnNewInput(String NewInput) {
-        input = input + NewInput;
+        if (NewInput=="N"){
+            input=input+"-";
+        } else {
+            input = input + NewInput;
+        }
+
+
+        inputData =inputData+NewInput;
+
+
         if (input.length() > 14) {
             resultView.setTextSize(12);
             if (input.length() > 33) {
@@ -210,11 +221,73 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void calculateResult() {
+        String calculateNumber=input;
+        int[] positionsOfSigns={0,0,0,0};
+        String[] stringsSeperatedBySigns;
+        String[] stringsSeperatedByPlus;
+        double[] numbersSeperatedByPLus;
 
+        stringsSeperatedByPlus=calculateNumber.split("//+");
+        numbersSeperatedByPLus=new double[stringsSeperatedByPlus.length];
+        for(int i=0;i<stringsSeperatedByPlus.length;i++){
+            numbersSeperatedByPLus[i]=getNumberSeperateByPlus(stringsSeperatedByPlus[i]);
+            result=result+numbersSeperatedByPLus[i];
+        }
 
     }
 
-    public int positionOfFirstSign(String input) {
+    public double getNumberSeperateByPlus(String stringSeperatedByPlus) {
+        String[] stringsSeperatedByMinus=stringSeperatedByPlus.split("//-");
+        double[] numbersSeperatedByMinus;
+        double result=0.0;
+        numbersSeperatedByMinus=new double[stringsSeperatedByMinus.length];
+        for(int i=0;i<stringsSeperatedByMinus.length;i++){
+            numbersSeperatedByMinus[i]=getNumberSeperateByMultiple(stringsSeperatedByMinus[i]);
+            if(i==0){
+                result=numbersSeperatedByMinus[i];
+            }
+            else{
+                result=result-numbersSeperatedByMinus[1];
+            }
+        }
+        return result;
+    }
+
+    public double getNumberSeperateByMultiple(String stringSeperatedByMinus){
+        double result=1;
+        String[] stringsSeperatedByMultiple=stringSeperatedByMinus.split("//*");
+        double[] numbersSeperatedByMultiple;
+        numbersSeperatedByMultiple=new double[stringsSeperatedByMultiple.length];
+        for(int i=0;i<stringsSeperatedByMultiple.length;i++){
+            numbersSeperatedByMultiple[i]=getNumberSeperateByDivision(stringsSeperatedByMultiple[i]);
+            result=result*numbersSeperatedByMultiple[i];
+        }
+        return result;
+    }
+
+    public double getNumberSeperateByDivision(String stringSeperatedByMultiple){
+        double result=1.0;
+        String[] stringsSeperatedByDivision=stringSeperatedByMultiple.split("///");
+        double[] numbersSeperatedByDivision;
+        numbersSeperatedByDivision=new double[stringsSeperatedByDivision.length];
+        for(int i=1;i<stringsSeperatedByDivision.length;i++){
+            if (getNumbers(stringsSeperatedByDivision[i])==0){
+                return 0.0;
+            }
+        }
+        result=getNumbers(stringsSeperatedByDivision[0]);
+        for(int i=1;i<stringsSeperatedByDivision.length;i++){
+            numbersSeperatedByDivision[i]=getNumbers(stringsSeperatedByDivision[i]);
+            result=result/numbersSeperatedByDivision[i];
+        }
+        return result;
+    }
+    public double getNumbers(String stringSeperatedByDivision){
+        double result=1.0;
+        return result;
+    }
+
+    public int getPositionOfFirstSign(String input) {
         int firstSigns = 50;
 
         for (int i = 0; i < signs.length; i++) {
