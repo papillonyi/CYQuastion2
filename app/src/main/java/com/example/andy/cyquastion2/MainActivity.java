@@ -14,13 +14,14 @@ import com.google.android.gms.common.api.GoogleApiClient;
 public class MainActivity extends AppCompatActivity {
     TextView resultView;
     Button buttonOne, buttonTwo, buttonThree, buttonFour, buttonFive, buttonSix, buttonSeven, buttonEight, buttonNine, buttonZero;
-    Button buttonAllClear, buttonBackspace, buttonPerCent, buttonDivision, buttonMultiple, buttonMinus, buttonPlus, buttonDot, buttonEqual;
+    Button buttonAllClear, buttonBackspace, buttonNegative, buttonDivision, buttonMultiple, buttonMinus, buttonPlus, buttonDot, buttonEqual;
     int numberOfInput = 0;
     String input = "";
     String inputData="";
     boolean didInputASign = false;
     String[] signs = {"+", "-", "*", "/"};
     double result=0.0;
+    boolean inputError=false;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         buttonZero = (Button) findViewById(R.id.buttonZero);
         buttonAllClear = (Button) findViewById(R.id.buttonAllClear);
         buttonBackspace = (Button) findViewById(R.id.buttonBackspace);
-        buttonPerCent = (Button) findViewById(R.id.buttonPerCent);
+        buttonNegative = (Button) findViewById(R.id.buttonNegative);
         buttonDivision = (Button) findViewById(R.id.buttonDivision);
         buttonSeven = (Button) findViewById(R.id.buttonSeven);
         buttonEight = (Button) findViewById(R.id.buttonEight);
@@ -130,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
                 numberOfInput = 0;
                 input = "";
                 resultView.setText("");
+                result=0;
+                inputError=false;
+                inputData="";
             }
         });
 
@@ -176,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        buttonPerCent.setOnClickListener(new View.OnClickListener() {
+        buttonNegative.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getAnNewInput("N");
@@ -217,29 +221,39 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
-        resultView.setText(input);
+        resultView.setText(inputData);
     }
 
     public void calculateResult() {
-        String calculateNumber=input;
+        String calculateNumber=inputData;
         int[] positionsOfSigns={0,0,0,0};
         String[] stringsSeperatedBySigns;
         String[] stringsSeperatedByPlus;
         double[] numbersSeperatedByPLus;
 
-        stringsSeperatedByPlus=calculateNumber.split("//+");
+        stringsSeperatedByPlus=calculateNumber.split("\\+");
         numbersSeperatedByPLus=new double[stringsSeperatedByPlus.length];
         for(int i=0;i<stringsSeperatedByPlus.length;i++){
             numbersSeperatedByPLus[i]=getNumberSeperateByPlus(stringsSeperatedByPlus[i]);
             result=result+numbersSeperatedByPLus[i];
         }
+        if (inputError){
+            resultView.setText("error");
+        }else{
+            resultView.setText(String.valueOf(result));
+        }
 
     }
 
     public double getNumberSeperateByPlus(String stringSeperatedByPlus) {
-        String[] stringsSeperatedByMinus=stringSeperatedByPlus.split("//-");
+        if (stringSeperatedByPlus==""){
+            inputError=true;
+            return 0;
+        }
+        String[] stringsSeperatedByMinus=stringSeperatedByPlus.split("\\-");
         double[] numbersSeperatedByMinus;
         double result=0.0;
+
         numbersSeperatedByMinus=new double[stringsSeperatedByMinus.length];
         for(int i=0;i<stringsSeperatedByMinus.length;i++){
             numbersSeperatedByMinus[i]=getNumberSeperateByMultiple(stringsSeperatedByMinus[i]);
@@ -255,7 +269,11 @@ public class MainActivity extends AppCompatActivity {
 
     public double getNumberSeperateByMultiple(String stringSeperatedByMinus){
         double result=1;
-        String[] stringsSeperatedByMultiple=stringSeperatedByMinus.split("//*");
+        if (stringSeperatedByMinus==""){
+            inputError=true;
+            return 0;
+        }
+        String[] stringsSeperatedByMultiple=stringSeperatedByMinus.split("\\*");
         double[] numbersSeperatedByMultiple;
         numbersSeperatedByMultiple=new double[stringsSeperatedByMultiple.length];
         for(int i=0;i<stringsSeperatedByMultiple.length;i++){
@@ -267,11 +285,16 @@ public class MainActivity extends AppCompatActivity {
 
     public double getNumberSeperateByDivision(String stringSeperatedByMultiple){
         double result=1.0;
-        String[] stringsSeperatedByDivision=stringSeperatedByMultiple.split("///");
+        if (stringSeperatedByMultiple==""){
+            inputError=true;
+            return 0;
+        }
+        String[] stringsSeperatedByDivision=stringSeperatedByMultiple.split("\\/");
         double[] numbersSeperatedByDivision;
         numbersSeperatedByDivision=new double[stringsSeperatedByDivision.length];
         for(int i=1;i<stringsSeperatedByDivision.length;i++){
             if (getNumbers(stringsSeperatedByDivision[i])==0){
+                inputError=true;
                 return 0.0;
             }
         }
@@ -284,25 +307,22 @@ public class MainActivity extends AppCompatActivity {
     }
     public double getNumbers(String stringSeperatedByDivision){
         double result=1.0;
+        if (stringSeperatedByDivision==""){
+            inputError=true;
+            return 0.0;
+        }
+
+
+
+        if (stringSeperatedByDivision.contains("N")){
+            result=-Double.parseDouble(stringSeperatedByDivision.substring(1,stringSeperatedByDivision.length()));
+        } else {
+            result=Double.parseDouble(stringSeperatedByDivision);
+        }
         return result;
-    }
-
-    public int getPositionOfFirstSign(String input) {
-        int firstSigns = 50;
-
-        for (int i = 0; i < signs.length; i++) {
-            if (firstSigns > input.indexOf(signs[i]) && input.indexOf(signs[i]) > 0) {
-                firstSigns = input.indexOf(signs[i]);
-            }
-        }
-        if (firstSigns==50){
-            return  -1;
-        }
-
-        return firstSigns;
-
 
     }
+
 
     @Override
     public void onStart() {

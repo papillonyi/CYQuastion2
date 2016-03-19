@@ -57,9 +57,9 @@
             android:layout_height="45dp"
             android:layout_gravity="left|center|right"
             android:background="#f0a800"
-            android:text="%"
+            android:text="+/-"
             android:textSize="20dp"
-            android:id="@+id/buttonPerCent"
+            android:id="@+id/buttonNegative"
             android:layout_row="0"
             android:layout_column="2" />
 
