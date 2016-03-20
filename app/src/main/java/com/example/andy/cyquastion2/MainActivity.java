@@ -128,12 +128,8 @@ public class MainActivity extends AppCompatActivity {
         buttonAllClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                numberOfInput = 0;
-                input = "";
-                resultView.setText("");
-                result=0;
-                inputError=false;
-                inputData="";
+                allClear();
+
             }
         });
 
@@ -191,7 +187,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!input.isEmpty()) {
-                    input = input.substring(0, input.length() - 1);
+                    if (input.substring(input.length()-1,input.length()).contains(")")){
+                        input = input.substring(0, input.length() - 3);
+                    } else {
+                        input = input.substring(0, input.length() - 1);
+                    }
+
+
+                    inputData=inputData.substring(0,inputData.length()-1);
                     resultView.setText(input);
                 }
 
@@ -202,10 +205,18 @@ public class MainActivity extends AppCompatActivity {
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
+    public  void allClear() {
+        numberOfInput = 0;
+        input = "";
+        resultView.setText("");
+        result=0;
+        inputError=false;
+        inputData="";
+    }
 
     public void getAnNewInput(String NewInput) {
         if (NewInput=="N"){
-            input=input+"-";
+            input=input+"(-)";
         } else {
             input = input + NewInput;
         }
@@ -217,11 +228,12 @@ public class MainActivity extends AppCompatActivity {
         if (input.length() > 14) {
             resultView.setTextSize(12);
             if (input.length() > 33) {
+                allClear();
                 resultView.setText("Overthrow");
                 return;
             }
         }
-        resultView.setText(inputData);
+        resultView.setText(input);
     }
 
     public void calculateResult() {
@@ -230,6 +242,25 @@ public class MainActivity extends AppCompatActivity {
         String[] stringsSeperatedBySigns;
         String[] stringsSeperatedByPlus;
         double[] numbersSeperatedByPLus;
+        for(int i=0;i<4;i++){
+            for (int j=0; j<4;j++){
+                if (calculateNumber.contains(signs[i]+signs[j])){
+                    allClear();
+                    resultView.setText("error");
+                    return;
+                }
+            }
+        }
+
+        for (int i=0;i<4;i++){
+            if(calculateNumber.substring(calculateNumber.length()-1,calculateNumber.length())==signs[i]||calculateNumber.substring(0,1)==signs[i]){
+                allClear();
+                resultView.setText("error");
+                return;
+
+            }
+        }
+
 
         stringsSeperatedByPlus=calculateNumber.split("\\+");
         numbersSeperatedByPLus=new double[stringsSeperatedByPlus.length];
@@ -246,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public double getNumberSeperateByPlus(String stringSeperatedByPlus) {
-        if (stringSeperatedByPlus==""){
+        if (stringSeperatedByPlus.isEmpty()){
             inputError=true;
             return 0;
         }
@@ -269,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
 
     public double getNumberSeperateByMultiple(String stringSeperatedByMinus){
         double result=1;
-        if (stringSeperatedByMinus==""){
+        if (stringSeperatedByMinus.isEmpty()){
             inputError=true;
             return 0;
         }
@@ -285,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
 
     public double getNumberSeperateByDivision(String stringSeperatedByMultiple){
         double result=1.0;
-        if (stringSeperatedByMultiple==""){
+        if (stringSeperatedByMultiple.isEmpty()){
             inputError=true;
             return 0;
         }
@@ -307,10 +338,24 @@ public class MainActivity extends AppCompatActivity {
     }
     public double getNumbers(String stringSeperatedByDivision){
         double result=1.0;
-        if (stringSeperatedByDivision==""){
+        if (stringSeperatedByDivision.isEmpty()){
             inputError=true;
             return 0.0;
         }
+
+        if (stringSeperatedByDivision.substring(1).contains("N")){
+            inputError=true;
+            return 0.0;
+        }
+
+        String[] dotNumber=stringSeperatedByDivision.split("\\.");
+        if(dotNumber.length>2){
+            inputError=true;
+            return 0.0;
+        }
+
+
+
 
 
 
